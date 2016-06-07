@@ -1,0 +1,172 @@
+src/Database.hs:(27,3)-(30,9): Splicing declarations
+    singletons
+      [d| data Nat
+            = Zero | Succ Nat
+            deriving (Eq, Ord) |]
+  ======>
+    data Nat
+      = Zero | Succ Nat
+      deriving (Eq, Ord)
+
+    type family Equals_1627420983 (x :: Nat) (y :: Nat) :: Bool where
+      Equals_1627420983 Zero Zero = 'True
+      Equals_1627420983 (Succ a) (Succ b) = (:==) a b
+      Equals_1627420983 (a :: Nat) (b :: Nat) = 'False
+
+    instance PEq (KProxy :: KProxy Nat) where
+      type (:==) (a :: Nat) (b :: Nat) = Equals_1627420983_a84w a b
+
+    type ZeroSym0 = Zero
+
+    type SuccSym1 (t_a84D :: Nat) = Succ t_a84D
+
+    data SuccSym0 (l_a84E :: TyFun Nat Nat)
+      = forall arg_a84F. KindOf (Apply SuccSym0 arg_a84F) ~ KindOf (SuccSym1 arg_a84F) =>
+        SuccSym0KindInference
+
+    type instance Apply SuccSym0 l_a84E = SuccSym1 l_a84E
+
+    type family Compare_1627423327_a8Gk (a :: Nat)
+                                        (b :: Nat) :: Ordering where
+      Compare_1627423327_a8Gk Zero Zero = Apply (Apply (Apply FoldlSym0 ThenCmpSym0) EQSym0) '[]
+      Compare_1627423327_a8Gk (Succ a_1627420979) (Succ b_1627420981) = Apply (Apply (Apply FoldlSym0 ThenCmpSym0) EQSym0) (Apply (Apply (:$) (Apply (Apply CompareSym0 a_1627420979) b_1627420981)) '[])
+      Compare_1627423327_a8Gk Zero (Succ _z_1627423114_a8CU) = LTSym0
+      Compare_1627423327_a8Gk (Succ _z_1627423117_a8CX) Zero = GTSym0
+
+    type Compare_1627423327Sym2 (t_a8Gl :: Nat) (t_a8Gm :: Nat) = Compare_1627423327_a8Gk t_a8Gl t_a8Gm
+
+    data Compare_1627423327Sym1 (l_a8Gq :: Nat) (l_a8Gp :: TyFun Nat Ordering)
+      = forall arg. KindOf (Apply (Compare_1627423327Sym1 l_a8Gq) arg) ~ KindOf (Compare_1627423327Sym2 l_a8Gq arg) =>
+        Compare_1627423327Sym1KindInference
+
+    type instance Apply (Compare_1627423327Sym1 l_a8Gq) l_a8Gp = Compare_1627423327Sym2 l_a8Gq l_a8Gp
+
+    data Compare_1627423327Sym0 (l_a8Gn :: TyFun Nat (TyFun Nat Ordering -> *))
+      = forall arg. KindOf (Apply Compare_1627423327Sym0 arg) ~ KindOf (Compare_1627423327Sym1 arg) =>
+        Compare_1627423327Sym0KindInference
+
+    type instance Apply Compare_1627423327Sym0 l_a8Gn = Compare_1627423327Sym1 l_a8Gn
+
+    instance POrd (KProxy :: KProxy Nat) where
+      type Compare (a :: Nat) (b :: Nat) = Apply (Apply Compare_1627423327Sym0 a) b
+
+    data instance Sing (z :: Nat)
+      = z ~ Zero => SZero
+      | forall (n :: Nat). z ~ Succ n => SSucc (Sing (n :: Nat))
+
+    type SNat = (Sing :: Nat -> *)
+
+    instance SingKind (KProxy :: KProxy Nat) where
+
+      type DemoteRep (KProxy :: KProxy Nat) = Nat
+
+      -- fromSing :: Sing (a :: Nat) -> DemoteRep (KProxy :: KProxy Nat)
+      fromSing :: Sing (a :: Nat) -> Nat
+      fromSing SZero = Zero
+      fromSing (SSucc b_a8Gu) = Succ (fromSing b_a8Gu)
+
+      -- toSing :: DemoteRep (KProxy :: KProxy Nat) -> SomeSing (KProxy :: KProxy Nat)
+      toSing :: Nat -> SomeSing (KProxy :: KProxy Nat)
+      toSing Zero = SomeSing SZero
+      toSing (Succ b)
+        = case toSing b :: SomeSing (KProxy :: KProxy Nat) of
+            SomeSing c -> SomeSing (SSucc c)
+
+    instance SEq (KProxy :: KProxy Nat) where
+      (%:==) SZero SZero = STrue
+      (%:==) SZero (SSucc _) = SFalse
+      (%:==) (SSucc _) SZero = SFalse
+      (%:==) (SSucc a) (SSucc b) = (%:==) a b
+
+    instance SDecide (KProxy :: KProxy Nat) where
+      (%~) SZero SZero = Proved Refl
+      (%~) SZero (SSucc _)
+        = Disproved
+            (\ x_a8Gz
+               -> case x_a8Gz of {
+                    _ -> error "Empty case reached -- this should be impossible" })
+      (%~) (SSucc _) SZero
+        = Disproved
+            (\ x_a8GA
+               -> case x_a8GA of {
+                    _ -> error "Empty case reached -- this should be impossible" })
+      (%~) (SSucc a) (SSucc b_a8GC)
+        = case (%~) a b_a8GC of {
+            Proved Refl -> Proved Refl
+            Disproved contra_a8GD
+              -> Disproved
+                   (\ refl_a8GE -> case refl_a8GE of { Refl -> contra_a8GD Refl }) }
+
+    instance SOrd (KProxy :: KProxy Nat) =>
+             SOrd (KProxy :: KProxy Nat) where
+      sCompare ::
+        forall (t0_a8GT :: Nat) (t1_a8GU :: Nat).
+        Sing t0_a8GT
+        -> Sing t1_a8GU
+           -> Sing (Apply (Apply (CompareSym0 :: TyFun Nat (TyFun Nat Ordering
+                                                                 -> *)
+                                                 -> *) t0_a8GT :: TyFun Nat Ordering
+                                                                  -> *) t1_a8GU :: Ordering)
+      sCompare SZero SZero
+        = let
+            lambda_a8H4 ::
+              (t0_a8GT ~ ZeroSym0, t1_a8GU ~ ZeroSym0) =>
+              Sing (Apply (Apply CompareSym0 ZeroSym0) ZeroSym0 :: Ordering)
+            lambda_a8H4
+              = applySing
+                  (applySing
+                     (applySing
+                        (singFun3 (Proxy :: Proxy FoldlSym0) sFoldl)
+                        (singFun2 (Proxy :: Proxy ThenCmpSym0) sThenCmp))
+                     SEQ)
+                  SNil
+          in lambda_a8H4
+      sCompare (SSucc sA_1627420979) (SSucc sB_1627420981)
+        = let
+            lambda_a8NO ::
+              forall a_1627420979
+                     b_1627420981 . (t0_a8GT ~ Apply SuccSym0 a_1627420979,
+                                         t1_a8GU ~ Apply SuccSym0 b_1627420981) =>
+              Sing a_1627420979
+              -> Sing b_1627420981
+                 -> Sing (Apply (Apply CompareSym0 (Apply SuccSym0 a_1627420979)) (Apply SuccSym0 b_1627420981) :: Ordering)
+            lambda_a8NO a_1627420979_a8NP b_1627420981_a8NQ
+              = applySing
+                  (applySing
+                     (applySing
+                        (singFun3 (Proxy :: Proxy FoldlSym0) sFoldl)
+                        (singFun2 (Proxy :: Proxy ThenCmpSym0) sThenCmp))
+                     SEQ)
+                  (applySing
+                     (applySing
+                        (singFun2 (Proxy :: Proxy (:$)) SCons)
+                        (applySing
+                           (applySing
+                              (singFun2 (Proxy :: Proxy CompareSym0) sCompare) a_1627420979_a8NP)
+                           b_1627420981_a8NQ))
+                     SNil)
+          in lambda_a8NO sA_1627420979 sB_1627420981
+      sCompare SZero (SSucc _s_z_1627423114)
+        = let
+            lambda_a8O3 ::
+              forall _z_1627423114_a8CU. (t0_a8GT ~ ZeroSym0,
+                                          t1_a8GU ~ Apply SuccSym0 _z_1627423114_a8CU) =>
+              Sing _z_1627423114_a8CU
+              -> Sing (Apply (Apply CompareSym0 ZeroSym0) (Apply SuccSym0 _z_1627423114_a8CU) :: Ordering)
+            lambda_a8O3 _z_1627423114_a8O4 = SLT
+          in lambda_a8O3 _s_z_1627423114
+      sCompare (SSucc _s_z_1627423117) SZero
+        = let
+            lambda_a8O5 ::
+              forall _z_1627423117_a8CX. (t0_a8GT ~ Apply SuccSym0 _z_1627423117_a8CX,
+                                          t1_a8GU ~ ZeroSym0) =>
+              Sing _z_1627423117_a8CX
+              -> Sing (Apply (Apply CompareSym0 (Apply SuccSym0 _z_1627423117_a8CX)) ZeroSym0 :: Ordering)
+            lambda_a8O5 _z_1627423117_a8O6 = SGT
+          in lambda_a8O5 _s_z_1627423117
+
+    instance SingI Zero where
+      sing = SZero
+
+    instance SingI n => SingI (Succ (n :: Nat)) where
+      sing = SSucc sing
